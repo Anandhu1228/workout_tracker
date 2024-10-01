@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create a Custom Workout</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+
+    <style>
+        body{
+             font-family: sans-serif;
+            background-image: url('{{ url_for('static', filename='workout_tracker.jpeg') }}');
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat; 
+            background-attachment: fixed;
+            height: 100vh;
+            margin: 0; 
+            padding: 0;
+            overflow:hidden;
+            padding-top:200px;
+        }
+        .btn_send{
+            border-radius: 10px;
+            transition: background-color 0.3s ease;
+            border: none;
+            background-color: darkgrey;
+            margin-top: 25px;
+            font-weight: bold;
+            color: white;
+            text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+            letter-spacing: 1px;
+            margin-bottom: 100px;
+            padding: 7px;
+        }
+        .btn_send:hover{
+            background-color: white;
+            color: black;
+            text-shadow: none;
+        }
+        .p_def{
+            color:darkgrey;
+            margin-bottom: 5px;
+        }
+        .predef{
+            color: darkgrey;
+            margin-top: 50px;
+        }
+        .head_here{
+            color: darkgrey;
+        }
+        .head_two{
+            margin-top: 40px;
+            color: darkgrey;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="head_here">Your Custom Workout Result</h2>
+
+        {% if mode == 0 or mode == 2 %}
+            <h4 class="head_two">Estimated Time for Completion</h4>
+            <p class="p_def">{{ minutesToComplete }} minutes and {{ remsecondsToComplete }} seconds</p>
+            <p class="p_def">Total number of workouts: {{ total_number_of_workout }}</p>
+        {% elif mode == 1 %}
+            <h4 class="head_two">Estimated Number of Workouts</h4>
+            <p class="p_def">Total number of workouts: {{ total_number_of_workout }}</p>
+        {% endif %}
+        
+        <h4 class="predef">Workout Details</h4>
+        <p class="p_def">Number of Sets: {{ no_of_set }}</p>
+        <p class="p_def">Time per Set: {{ time_of_set }} seconds</p>
+        <p class="p_def">Rest Time per Set: {{ rest_of_set }} seconds</p>
+        <p class="p_def">Rest Time after Workout: {{ rest_of_workout }} seconds</p>
+
+        <button onclick="startWorkout('{{total_number_of_workout}}','{{no_of_set}}','{{time_of_set}}','{{rest_of_set}}','{{rest_of_workout}}')" class="btn btn_send">Start workout</button>
+        
+        <a href="/" class="btn btn_send" style="margin-left: 20px;">Back to Home</a>
+    </div>
+
+    <script>
+        function startWorkout(total_no_of_workout,total_no_of_set,set_duration,set_rest_duration,workout_rest_duration){
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/send_confirm_workout';
+
+            // Append each value as a hidden input
+            const inputs = [
+                { name: 'total_no_of_workout', value: total_no_of_workout },
+                { name: 'total_no_of_set', value: total_no_of_set },
+                { name: 'set_duration', value: set_duration },
+                { name: 'set_rest_duration', value: set_rest_duration },
+                { name: 'workout_rest_duration', value: workout_rest_duration }
+            ];
+
+            inputs.forEach(input => {
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = input.name;
+                hiddenInput.value = input.value;
+                form.appendChild(hiddenInput);
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
+
+</body>
+</html>

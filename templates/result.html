@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Workout Plan</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+
+    <style>
+         body {
+            font-family: sans-serif;
+            background-image: url('{{ url_for('static', filename='workout_tracker.jpeg') }}');
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat; 
+            background-attachment: fixed;
+            height: 100vh;
+            margin: 0; 
+            padding: 0;
+            padding-top: 100px;
+        }
+        .radio_container{
+            margin-top: 60px;
+            display: none;
+        }
+        .custom_form{
+            margin-top: 60px;
+            margin-bottom: 50px;
+            display: none;
+        }
+        .predef{
+            color: darkgrey;
+            margin-top: 50px;
+        }
+        .p_def{
+            color:darkgrey;
+            margin-bottom: 5px;
+        }
+        .btn_select{
+            margin-top: 20px;
+            border-radius: 10px;
+            padding: 10px;
+            font-weight: bold;
+        }
+        .rad_here{
+            color: darkgrey;
+        }
+        .btn_send{
+            width: 100%;
+            border-radius: 10px;
+            transition: background-color 0.3s ease;
+            border: none;
+            background-color: darkgrey;
+            margin-top: 25px;
+            font-weight: bold;
+            color: white;
+            text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+            letter-spacing: 1px;
+            margin-bottom: 100px;
+        }
+        .btn_send:hover{
+            background-color: white;
+            color: black;
+            text-shadow: none;
+        }
+        .input_box {
+            border-radius: 10px;
+            padding: 10px;
+            font-weight: 500;
+            box-shadow: 0 0px 4px rgba(0, 0, 0, 0.4);
+        }
+    </style>
+</head>
+<body style="background-image: url('{{ url_for('static', filename='workout_tracker.jpeg') }}');">
+    <div class="container" style="margin-bottom: 200px;">
+        <h2 class="predef">Workout Plan for {{ userdata.name }}</h2>
+        <p class="p_def">Your age: {{ userdata.age }}</p>
+        <p class="p_def">Your selected category: {{ category_str }}</p>
+        <p class="p_def">Your level: {{ level_str }}</p>
+        <p class="p_def">Frequency: {{ userdata.frequency }}</p>
+
+        <h4 class="predef">Your Workout Plan:</h4>
+        <ul>
+            <li class="p_def">Workout Count: {{ plan.workout_count }}</li>
+            <li class="p_def">Sets: {{ plan.sets }}</li>
+            <li class="p_def">Reps per Set: {{ plan.reps_per_set }}</li>
+            <li class="p_def">Set Time (seconds): {{ plan.set_time }}</li>
+            <li class="p_def">Rest Between Sets (seconds): {{ plan.rest_between_sets }}</li>
+            <li class="p_def">Rest Between Workouts (seconds): {{ plan.rest_between_workouts }}</li>
+        </ul>
+
+        <div>
+            <h4 class="predef">Would you like to create a custom workout plan?</h4>
+            <button onclick="select_no_mode('{{ plan.workout_count }}','{{ plan.sets }}','{{ plan.set_time }}','{{ plan.rest_between_sets }}','{{ plan.rest_between_workouts }}')" class="btn btn-secondary btn_select">Yes, continue with this plan</button>
+            <button style="margin-left: 40px;" onclick="select_yes_mode()" class="btn btn-secondary btn_select">No, create a custom plan</button>
+        </div>
+    
+
+        <div class="radio_container" id="workoutModeForm">
+            <div >
+                <div class="radio-container">
+                    <input type="radio" id="mode1" name="workoutMode" value="1" required onclick="chose_custom_time_constraint()">
+                    <label for="mode1" class="rad_here">COMPLETE WORKOUT WITHIN A TIME</label>
+                </div>
+                <div class="radio-container">
+                    <input type="radio" id="mode2" name="workoutMode" value="2" onclick="chose_custom_worknumber_constraint()">
+                    <label for="mode2" class="rad_here">COMPLETE WORKOUT BY COMPLETING A NUMBER OF WORKOUTS</label>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="custom_form" id="custom_time_constraint">
+            <form method="POST" action="/custom_time_mode">
+                <div class="form-group">
+                    <input type="number" class="form-control input_box" name="workout_limit" required placeholder="Enter time limit in minutes">
+                </div>
+                <div class="form-group">
+                    <input type="number" class="form-control input_box" name="workout_sets" required placeholder="Enter number of sets per workout">
+                </div>
+                <div class="form-group">
+                    <input type="number" class="form-control input_box" name="workout_reps" required placeholder="Enter the approx number of reps per set">
+                </div>
+                <div class="form-group">
+                    <input type="number" class="form-control input_box" name="workout_duration" required placeholder="Enter the approx set time in seconds">
+                </div>
+                <div class="form-group">
+                    <input type="number" class="form-control input_box" name="rest_time_set" required placeholder="Enter time approx break time after each set in seconds">
+                </div>
+                <div class="form-group">
+                    <input type="number" class="form-control input_box" name="rest_time_workout" required placeholder="Enter time approx break time after each workout in seconds">
+                </div>
+                <button type="submit" class="btn btn_send">Create Workout</button>
+            </form>
+        </div>
+
+
+        <div class="custom_form" id="custom_workout_constraint">
+            <form method="POST" action="/custom_work_mode">
+                <div class="form-group">
+                    <input type="number" class="form-control input_box" name="workout_number" required placeholder="Enter the number of workouts you plan">
+                </div>
+                <div class="form-group">
+                    <input type="number" class="form-control input_box" name="workout_sets" required placeholder="Enter number of sets">
+                </div>
+                <div class="form-group">
+                    <input type="number" class="form-control input_box" name="workout_reps" required placeholder="Enter the approx number of reps per set per workout">
+                </div>
+                <div class="form-group">
+                    <input type="number" class="form-control input_box" name="workout_duration" required placeholder="Enter the approx set time in seconds ">
+                </div>
+                <div class="form-group">
+                    <input type="number" class="form-control input_box" name="rest_time_set" required placeholder="Enter time approx break time after each set in seconds">
+                </div>
+                <div class="form-group">
+                    <input type="number" class="form-control input_box" name="rest_time_workout" required placeholder="Enter time approx break time after each workout in seconds">
+                </div>
+                <button type="submit" class="btn btn_send">Create Workout</button>
+            </form>
+        </div>
+
+    </div>
+
+    <script>
+        function select_no_mode(workout_limit,workout_sets,workout_duration,rest_time_set,rest_time_workout){
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/send_confirm_predefine';
+
+            // Append each value as a hidden input
+            const inputs = [
+                { name: 'workout_limit', value: workout_limit },
+                { name: 'workout_sets', value: workout_sets },
+                { name: 'workout_duration', value: workout_duration },
+                { name: 'rest_time_set', value: rest_time_set },
+                { name: 'rest_time_workout', value: rest_time_workout }
+            ];
+
+            inputs.forEach(input => {
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = input.name;
+                hiddenInput.value = input.value;
+                form.appendChild(hiddenInput);
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        function select_yes_mode() {
+            const radioSelector = document.getElementById('workoutModeForm');
+            if (radioSelector.style.display === "none" || radioSelector.style.display === "") {
+                radioSelector.style.display = "block"; // Show the form
+            } else {
+                radioSelector.style.display = "none"; // Hide the form
+            }
+        }
+
+        function chose_custom_time_constraint(){
+            const timeSelector = document.getElementById('custom_time_constraint');
+            if (timeSelector.style.display === "none" || timeSelector.style.display === "") {
+                timeSelector.style.display = "block"; // Show the form
+            } else {
+                timeSelector.style.display = "none"; // Hide the form
+            }
+        }
+
+        function chose_custom_worknumber_constraint(){
+            const workSelector = document.getElementById('custom_workout_constraint');
+            if (workSelector.style.display === "none" || workSelector.style.display === "") {
+                workSelector.style.display = "block"; // Show the form
+            } else {
+                workSelector.style.display = "none"; // Hide the form
+            }
+        }
+
+    </script>
+</body>
+</html>

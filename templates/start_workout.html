@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Tracker</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+       body{
+             font-family: sans-serif;
+            background-image: url('{{ url_for('static', filename='workout_tracker.jpeg') }}');
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat; 
+            background-attachment: fixed;
+            height: 100vh;
+            margin: 0; 
+            padding: 0;
+            overflow:hidden;
+            padding-top:200px;
+        }
+        .btn_send{
+            border-radius: 10px;
+            transition: background-color 0.3s ease;
+            border: none;
+            background-color: darkgrey;
+            margin-top: 10px;
+            font-weight: bold;
+            color: white;
+            text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+            letter-spacing: 1px;
+            margin-bottom: 100px;
+            padding: 7px;
+        }
+        .btn_send:hover{
+            background-color: white;
+            color: black;
+            text-shadow: none;
+        }
+        #workout-status {
+            font-size: 1.5em;
+            margin-top: 20px;
+        }
+        #home-btn {
+            display: none;
+            margin-top: 20px;
+        }
+        .head_here{
+            color: darkgrey;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="head_here">Workout Tracker</h1>
+        <p style="color: darkgrey;" id="workout-status">Waiting to start...</p>
+        <button class="btn btn_send" id="start-btn">Start Workout</button>
+        <a href="/" class="btn btn_send" id="home-btn">Back to Home</a>
+    </div>
+
+    <script>
+        document.getElementById('start-btn').addEventListener('click', function() {
+            const startBtn = document.getElementById('start-btn');
+            const homeBtn = document.getElementById('home-btn');
+            const workoutStatus = document.getElementById('workout-status');
+            
+            // Hide the Start button when workout begins
+            startBtn.style.display = 'none';
+
+            const eventSource = new EventSource('/stream_workout');
+            eventSource.onmessage = function(event) {
+                workoutStatus.innerHTML = event.data;
+
+                // When workout is done, show the "Back to Home" button
+                if (event.data.includes('ALL WORKOUTS COMPLETED')) {
+                    eventSource.close();
+                    homeBtn.style.display = 'block';
+                }
+            };
+        });
+    </script>
+</body>
+</html>
